@@ -3,17 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Team;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class TeamController extends Controller
 {
-    function index()
+    public function index(): JsonResponse
     {
         $teams = Team::all();
         return response()->json($teams);
     }
 
-    function create(Request $request)
+    public function create(Request $request): JsonResponse
     {
         $team = new Team();
         $team->name = $request->get('name');
@@ -25,15 +26,15 @@ class TeamController extends Controller
         return response()->json($team);
     }
 
-    function read(int $team_id)
+    public function read(int $team_id): JsonResponse
     {
-        $team = Team::find($team_id);
+        $team = Team::findOrFail($team_id);
         return response()->json($team);
     }
 
-    function update(Request $request, int $team_id)
+    public function update(Request $request, int $team_id): JsonResponse
     {
-        $team = Team::find($team_id);
+        $team = Team::findOrfail($team_id);
         $team->name = $request->get('name');
         $team->year_foundation = $request->get('year_foundation');
         $team->gymnasium = $request->get('gymnasium');
@@ -43,9 +44,9 @@ class TeamController extends Controller
         return response()->json($team);
     }
 
-    function delete(int $team_id)
+    public function delete(int $team_id): JsonResponse
     {
-        $team = Team::find($team_id);
+        $team = Team::findOrFail($team_id);
         $team->delete();
 
         return response()->json(["excluded" => $team]);
