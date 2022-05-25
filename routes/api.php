@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,9 +12,28 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::middleware('apiInterceptor')->group(function () {
 
-Route::get('/team', "\App\Http\Controllers\TeamController@index");
-Route::get('/team/{team_id}', "\App\Http\Controllers\TeamController@read");
-Route::post('/team', "\App\Http\Controllers\TeamController@create");
-Route::put('/team/{team_id}', "\App\Http\Controllers\TeamController@update");
-Route::delete('/team/{team_id}', "\App\Http\Controllers\TeamController@delete");
+    Route::prefix('/teams')
+        ->name('teams.')
+        ->controller(\App\Http\Controllers\TeamController::class)
+        ->group(function () {
+            Route::get('/', "index")->name('index');
+            Route::get('/{team_id}', 'read')->name('read');
+            Route::post('/', 'create')->name('create');
+            Route::put('/{team_id}', 'update')->name('update');
+            Route::delete('/{team_id}', 'delete')->name('delete');
+
+            Route::prefix('/{team_id}/technical_committee')
+                ->name('technical_committee.')
+                ->controller(\App\Http\Controllers\TechnicalCommitteeController::class)
+                ->group(function () {
+                    Route::get('/', "index")->name('index');
+                    Route::get('/{technical_committee_id}', 'read')->name('read');
+                    Route::post('/', 'create')->name('create');
+                    Route::put('/{technical_committee_id}', 'update')->name('update');
+                    Route::delete('/{technical_committee_id}', 'delete')->name('delete');
+                });
+        });
+
+});
