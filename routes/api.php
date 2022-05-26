@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CompetitionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -34,6 +35,17 @@ Route::middleware('apiInterceptor')->group(function () {
                     Route::put('/{technical_committee_id}', 'update')->name('update');
                     Route::delete('/{technical_committee_id}', 'delete')->name('delete');
                 });
+        });
+    
+    Route::prefix('/competitions')
+        ->name('competitions.')
+        ->controller(CompetitionController::class)
+        ->group(function () {
+            Route::get('/', "index")->name('index');
+            Route::get('/{competition_id}', 'read')->name('read');
+            Route::post('/', 'create')->name('create');
+            Route::put('/{competition_id}', 'update')->name('update');
+            Route::delete('/{competition_id}', 'delete')->name('delete');
         });
 
 });
