@@ -46,7 +46,7 @@
             "@php artisan key:generate --ansi"
         ],
         "compile": [
-            "@php artisan migrate"
+            "@php artisan migrate --force"
         ]
     },
     "extra": {
