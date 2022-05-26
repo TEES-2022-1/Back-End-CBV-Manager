@@ -17,6 +17,8 @@ class ApiInterceptor
     public function handle(Request $request, Closure $next)
     {
         $request->headers->set("Accept", "application/json");
-        return $next($request);
+        return $next($request)
+            ->header('Access-Control-Allow-Origin', '*')
+            ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     }
 }
