@@ -12,4 +12,11 @@ class Position extends Model
     protected $fillable = [
       'name'
     ];
+
+    public function player(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Player::class);
+    }
+
+
 }

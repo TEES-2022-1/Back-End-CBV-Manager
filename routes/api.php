@@ -33,7 +33,30 @@ Route::middleware('apiInterceptor')->group(function () {
                     Route::post('/', 'create')->name('create');
                     Route::put('/{technical_committee_id}', 'update')->name('update');
                     Route::delete('/{technical_committee_id}', 'delete')->name('delete');
+
                 });
+
         });
 
+    Route::prefix('/positions')
+        ->name('positions.')
+        ->controller(\App\Http\Controllers\PositionController::class)
+        ->group(function () {
+            Route::get('/', "index")->name('index');
+            Route::get('/{position_id}', 'read')->name('read');
+            Route::post('/', 'create')->name('create');
+            Route::put('/{position_id}', 'update')->name('update');
+            Route::delete('/{position_id}', 'delete')->name('delete');
+        });
+
+    Route::prefix('/players')
+        ->name('players.')
+        ->controller(\App\Http\Controllers\PlayerController::class)
+        ->group(function () {
+            Route::get('/', "index")->name('index');
+            Route::get('/{player_id}', 'read')->name('read');
+            Route::post('/', 'create')->name('create');
+            Route::put('/{player_id}', 'update')->name('update');
+            Route::delete('/{player_id}', 'delete')->name('delete');
+        });
 });

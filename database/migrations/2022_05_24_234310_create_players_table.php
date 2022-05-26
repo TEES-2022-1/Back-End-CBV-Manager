@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string(column: "name", length: 256);
             $table->date(column: "birthday");
-            $table->foreignId(column: "position_id")->references("id")->on("positions");
+            $table->foreignId(column: "position_id")->references("id")->on("positions")->onDelete("cascade");
             $table->timestamps();
         });
     }
