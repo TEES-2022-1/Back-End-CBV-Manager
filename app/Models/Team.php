@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Mutators\CategoryMutator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
@@ -13,27 +14,34 @@ use Illuminate\Support\Carbon;
  * @property int year_foundation
  * @property string gymnasium
  * @property string category
- * @property Carbon validated
+ * @property Carbon affiliated_federation_in
  */
 class Team extends Model
 {
-    use HasFactory;
+    use HasFactory, CategoryMutator;
+
+    public $timestamps = false;
 
     protected $fillable = [
         'name',
         'year_foundation',
         'gymnasium',
         'category',
-        'validated'
+        'affiliated_federation_in'
     ];
 
-    public function technicalCommittees(): HasMany
+    public function players(): HasMany
     {
-        return $this->hasMany(TechnicalCommittee::class);
+        return $this->hasMany(Player::class);
     }
 
-    public function competitions(): BelongsToMany
+    public function technicalCommittee(): BelongsTo
     {
-        return $this->belongsToMany(Competition::class);
+        return $this->belongsTo(TechnicalCommittee::class);
+    }
+
+    public function league(): BelongsTo
+    {
+        return $this->belongsTo(League::class);
     }
 }

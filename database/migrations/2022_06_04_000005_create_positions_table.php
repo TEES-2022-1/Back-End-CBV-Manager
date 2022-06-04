@@ -13,12 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('players', function (Blueprint $table) {
+        Schema::create('positions', function (Blueprint $table) {
             $table->id();
-            $table->string(column: "name", length: 256);
-            $table->date(column: "birthday");
-            $table->foreignId(column: "position_id")->references("id")->on("positions")->onDelete("cascade");
-            $table->timestamps();
+            $table->string('name', 256);
+            $table->softDeletes();
         });
     }
 
@@ -29,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('players');
+        Schema::dropIfExists('positions');
     }
 };

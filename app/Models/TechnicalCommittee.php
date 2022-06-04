@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- * @property int year
  * @property string coach
- * @property string coach_assistent
+ * @property string coach_assistant
  * @property string supervisor
  * @property string personal_trainer
  * @property string physiotherapist
@@ -20,10 +20,11 @@ class TechnicalCommittee extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $fillable = [
-        'year',
         'coach',
-        'coach_assistent',
+        'coach_assistant',
         'supervisor',
         'personal_trainer',
         'physiotherapist',
@@ -31,8 +32,8 @@ class TechnicalCommittee extends Model
         'doctor',
     ];
 
-    public function team(): BelongsTo
+    public function team(): HasOne
     {
-        return $this->belongsTo(Team::class);
+        return $this->hasOne(Team::class);
     }
 }

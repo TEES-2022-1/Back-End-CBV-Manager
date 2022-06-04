@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Competition;
+use App\Models\League;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -10,13 +10,13 @@ class CompetitionController extends Controller
 {
     public function index(): JsonResponse
     {
-        $competitions = Competition::all();
+        $competitions = League::all();
         return response()->json($competitions);
     }
 
     public function create(Request $request): JsonResponse
     {
-        $competition = new Competition();
+        $competition = new League();
         $competition->title = $request->get('title');
         $competition->year = $request->get('year');
         $competition->category = $request->get('category');
@@ -32,13 +32,13 @@ class CompetitionController extends Controller
 
     public function read(int $competition_id): JsonResponse
     {
-        $competition = Competition::findOrFail($competition_id);
+        $competition = League::findOrFail($competition_id);
         return response()->json($competition);
     }
 
     public function update(Request $request, int $competition_id): JsonResponse
     {
-        $competition = Competition::findOrfail($competition_id);
+        $competition = League::findOrfail($competition_id);
         $competition->title = $request->get('title');
         $competition->year = $request->get('year');
         $competition->category = $request->get('category');
@@ -54,7 +54,7 @@ class CompetitionController extends Controller
 
     public function delete(int $competition_id): JsonResponse
     {
-        $competition = Competition::findOrFail($competition_id);
+        $competition = League::findOrFail($competition_id);
         $competition->delete();
 
         return response()->json(["excluded" => $competition]);
