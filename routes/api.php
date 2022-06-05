@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\CompetitionController;
+use App\Http\Controllers\LeagueController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,39 +15,47 @@ use Illuminate\Support\Facades\Route;
 */
 Route::middleware('apiInterceptor')->group(function () {
 
-    Route::prefix('/teams')
-        ->name('teams.')
-        ->controller(\App\Http\Controllers\TeamController::class)
+    Route::prefix('/leagues')
+        ->name('leagues.')
+        ->controller(LeagueController::class)
         ->group(function () {
             Route::get('/', "index")->name('index');
-            Route::get('/{team_id}', 'read')->name('read');
+            Route::get('/{league_id}', 'read')->name('read');
             Route::post('/', 'create')->name('create');
-            Route::put('/{team_id}', 'update')->name('update');
-            Route::delete('/{team_id}', 'delete')->name('delete');
+            Route::put('/{league_id}', 'update')->name('update');
+            Route::delete('/{league_id}', 'delete')->name('delete');
 
-            Route::prefix('/{team_id}/technical_committee')
-                ->name('technical_committee.')
-                ->controller(\App\Http\Controllers\TechnicalCommitteeController::class)
+            Route::prefix('/{league_id}/teams')
+                ->name('teams.')
+                ->controller(\App\Http\Controllers\TeamController::class)
                 ->group(function () {
                     Route::get('/', "index")->name('index');
-                    Route::get('/{technical_committee_id}', 'read')->name('read');
+                    Route::get('/{team_id}', 'read')->name('read');
                     Route::post('/', 'create')->name('create');
-                    Route::put('/{technical_committee_id}', 'update')->name('update');
-                    Route::delete('/{technical_committee_id}', 'delete')->name('delete');
+                    Route::put('/{team_id}', 'update')->name('update');
+                    Route::delete('/{team_id}', 'delete')->name('delete');
 
+                    Route::prefix('/{team_id}/technical_committee')
+                        ->name('technical_committee.')
+                        ->controller(\App\Http\Controllers\TechnicalCommitteeController::class)
+                        ->group(function () {
+                            Route::get('/', "index")->name('index');
+                            Route::post('/', 'create')->name('create');
+                            Route::put('/', 'update')->name('update');
+                            Route::delete('/', 'delete')->name('delete');
+                        });
+
+                    Route::prefix('/{team_id}/players')
+                        ->name('players.')
+                        ->controller(\App\Http\Controllers\PlayerController::class)
+                        ->group(function () {
+                            Route::get('/', "index")->name('index');
+                            Route::get('/{player_id}', 'read')->name('read');
+                            Route::post('/', 'create')->name('create');
+                            Route::put('/{player_id}', 'update')->name('update');
+                            Route::delete('/{player_id}', 'delete')->name('delete');
+                        });
                 });
-
-        });
-    
-    Route::prefix('/competitions')
-        ->name('competitions.')
-        ->controller(CompetitionController::class)
-        ->group(function () {
-            Route::get('/', "index")->name('index');
-            Route::get('/{competition_id}', 'read')->name('read');
-            Route::post('/', 'create')->name('create');
-            Route::put('/{competition_id}', 'update')->name('update');
-            Route::delete('/{competition_id}', 'delete')->name('delete');
         });
 
     Route::prefix('/positions')
@@ -59,16 +67,5 @@ Route::middleware('apiInterceptor')->group(function () {
             Route::post('/', 'create')->name('create');
             Route::put('/{position_id}', 'update')->name('update');
             Route::delete('/{position_id}', 'delete')->name('delete');
-        });
-
-    Route::prefix('/players')
-        ->name('players.')
-        ->controller(\App\Http\Controllers\PlayerController::class)
-        ->group(function () {
-            Route::get('/', "index")->name('index');
-            Route::get('/{player_id}', 'read')->name('read');
-            Route::post('/', 'create')->name('create');
-            Route::put('/{player_id}', 'update')->name('update');
-            Route::delete('/{player_id}', 'delete')->name('delete');
         });
 });

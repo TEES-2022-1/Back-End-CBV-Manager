@@ -15,7 +15,6 @@ return new class extends Migration
     {
         Schema::create('teams', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('technical_committee_id');
             $table->unsignedBigInteger('league_id');
             $table->string('name', 256);
             $table->integer('year_foundation');
@@ -23,13 +22,8 @@ return new class extends Migration
             $table->enum('category', ['MALE', 'FEMALE']);
             $table->date('affiliated_federation_in');
 
-            $table->foreign('technical_committee_id')
-                ->on('technical_committees')
-                ->references('id')
-                ->onDelete('cascade');
-
             $table->foreign('league_id')
-                ->on('teams')
+                ->on('leagues')
                 ->references('id')
                 ->onDelete('cascade');
         });

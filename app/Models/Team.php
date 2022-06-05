@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Carbon;
 
 /**
@@ -35,9 +36,9 @@ class Team extends Model
         return $this->hasMany(Player::class);
     }
 
-    public function technicalCommittee(): BelongsTo
+    public function technicalCommittee(): HasOne
     {
-        return $this->belongsTo(TechnicalCommittee::class);
+        return $this->hasOne(TechnicalCommittee::class);
     }
 
     public function league(): BelongsTo

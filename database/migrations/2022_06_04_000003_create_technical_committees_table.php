@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('technical_committees', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('team_id');
             $table->string("coach", 256);
             $table->string("coach_assistant", 256);
             $table->string("supervisor", 256);
@@ -22,6 +23,11 @@ return new class extends Migration
             $table->string("physiotherapist", 256);
             $table->string("masseuse", 256);
             $table->string("doctor", 256);
+
+            $table->foreign('team_id')
+                ->on('teams')
+                ->references('id')
+                ->onDelete('cascade');
         });
     }
 

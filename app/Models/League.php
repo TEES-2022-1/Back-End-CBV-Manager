@@ -36,4 +36,9 @@ class League extends Model
         'semifinals_limit',
         'finish_in'
     ];
+
+    public function teams(): HasMany
+    {
+        return $this->hasMany(Team::class);
+    }
 }

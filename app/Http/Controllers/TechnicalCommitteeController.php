@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Team;
+use App\Models\League;
 use App\Models\TechnicalCommittee;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -10,63 +10,49 @@ use Illuminate\Http\Request;
 
 class TechnicalCommitteeController extends Controller
 {
-    public function index(int $team_id)
+    public function index(int $league_id, int $team_id): JsonResponse
     {
-        return TechnicalCommittee::where('team_id', $team_id)->get();
+        $technicalCommittee = League::findOrFail($league_id)
+            ->teams()->findOrfail($team_id)
+            ->technicalCommittee()
+            ->firstOrFail();
+        return response()->json($technicalCommittee);
     }
 
-
-    /**
-     * @throws Exception
-     */
-    public function create(Request $request, int $team_id): JsonResponse
+    public function create(Request $request, int $league_id, int $team_id): JsonResponse
     {
-        $team = Team::findOrFail($team_id);
+        $team = League::findOrFail($league_id)
+            ->teams()->findOrfail($team_id);
 
-        if (TechnicalCommittee::where('year', $request->get('year'))->where('team_id', $team_id)->first()) {
-            throw new Exception('This team already a technical committee for this year.');
-        }
+        $form = $request->all();
 
-        $technicalCommittee = new TechnicalCommittee();
-        $technicalCommittee->year = $request->get('year');
-        $technicalCommittee->coach = $request->get('coach');
-        $technicalCommittee->coach_assistent = $request->get('coach_assistent');
-        $technicalCommittee->supervisor = $request->get('supervisor');
-        $technicalCommittee->personal_trainer = $request->get('personal_trainer');
-        $technicalCommittee->physiotherapist = $request->get('physiotherapist');
-        $technicalCommittee->masseuse = $request->get('masseuse');
-        $technicalCommittee->doctor = $request->get('doctor');
+        $technicalCommittee = new TechnicalCommittee($form);
         $technicalCommittee->team()->associate($team);
         $technicalCommittee->save();
 
         return response()->json($technicalCommittee);
     }
 
-    public function read(int $team_id, int $technical_committee_id): JsonResponse
+    public function update(Request $request, int $league_id, int $team_id): JsonResponse
     {
-        $technicalCommittee = TechnicalCommittee::find($technical_committee_id)->where('team_id', $team_id)->firstOrFail();
-        return response()->json($technicalCommittee);
-    }
+        $technicalCommittee = League::findOrFail($league_id)
+            ->teams()->findOrfail($team_id)
+            ->technicalCommittee()
+            ->firstOrFail();
 
-
-    public function update(Request $request, int $team_id, int $technical_committee_id): JsonResponse
-    {
-        $technicalCommittee = TechnicalCommittee::find($technical_committee_id)->where('team_id', $team_id)->firstOrFail();
-        $technicalCommittee->coach = $request->get('coach');
-        $technicalCommittee->coach_assistent = $request->get('coach_assistent');
-        $technicalCommittee->supervisor = $request->get('supervisor');
-        $technicalCommittee->personal_trainer = $request->get('personal_trainer');
-        $technicalCommittee->physiotherapist = $request->get('physiotherapist');
-        $technicalCommittee->masseuse = $request->get('masseuse');
-        $technicalCommittee->doctor = $request->get('doctor');
+        $form = $request->all();
+        $technicalCommittee->fill($form);
         $technicalCommittee->save();
 
         return response()->json($technicalCommittee);
     }
 
-    public function delete(int $team_id, int $technical_committee_id): JsonResponse
+    public function delete(int $league_id, int $team_id): JsonResponse
     {
-        $technicalCommittee = TechnicalCommittee::find($technical_committee_id)->where('team_id', $team_id)->firstOrFail();
+        $technicalCommittee = League::findOrFail($league_id)
+            ->teams()->findOrfail($team_id)
+            ->technicalCommittee()
+            ->firstOrFail();
         $technicalCommittee->delete();
         return response()->json(['excluded' => $technicalCommittee]);
     }
