@@ -19,8 +19,20 @@ class TechnicalCommitteeController extends Controller
         return response()->json($technicalCommittee);
     }
 
+    /**
+     * @throws Exception
+     */
     public function create(Request $request, int $league_id, int $team_id): JsonResponse
     {
+        $technicalCommittee = League::findOrFail($league_id)
+            ->teams()->findOrfail($team_id)
+            ->technicalCommittee()
+            ->first();
+
+        if($technicalCommittee != null){
+          throw new Exception("Technical Committee already exists for this team.");
+        }
+
         $team = League::findOrFail($league_id)
             ->teams()->findOrfail($team_id);
 
