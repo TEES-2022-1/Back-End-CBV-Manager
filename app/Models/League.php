@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Models\Mutators\CategoryMutator;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -18,9 +20,11 @@ use Illuminate\Support\Carbon;
  * @property Carbon semifinals_limit
  * @property Carbon finish_in
  */
-class Competition extends Model
+class League extends Model
 {
-    use HasFactory;
+    use HasFactory, CategoryMutator;
+
+    public $timestamps = false;
 
     protected $fillable = [
         'title',
@@ -33,13 +37,8 @@ class Competition extends Model
         'finish_in'
     ];
 
-    public function teams(): BelongsToMany
+    public function teams(): HasMany
     {
-        return $this->belongsToMany(Team::class);
+        return $this->hasMany(Team::class);
     }
-
-    // public function matches(): HasMany
-    // {
-    //     return $this->hasMany(Matches::class);
-    // }
 }

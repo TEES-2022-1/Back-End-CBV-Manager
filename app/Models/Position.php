@@ -4,19 +4,16 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Position extends Model
 {
     use HasFactory;
+    use SoftDeletes;
+
+    public $timestamps = false;
 
     protected $fillable = [
-      'name'
+      'name',
     ];
-
-    public function player(): \Illuminate\Database\Eloquent\Relations\HasMany
-    {
-        return $this->hasMany(Player::class);
-    }
-
-
 }

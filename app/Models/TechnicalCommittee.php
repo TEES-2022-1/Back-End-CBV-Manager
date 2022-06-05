@@ -7,9 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * @property int year
  * @property string coach
- * @property string coach_assistent
+ * @property string coach_assistant
  * @property string supervisor
  * @property string personal_trainer
  * @property string physiotherapist
@@ -20,10 +19,11 @@ class TechnicalCommittee extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $fillable = [
-        'year',
         'coach',
-        'coach_assistent',
+        'coach_assistant',
         'supervisor',
         'personal_trainer',
         'physiotherapist',
