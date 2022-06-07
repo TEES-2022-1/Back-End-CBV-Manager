@@ -13,6 +13,22 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+Route::any('/test', function() {
+    $cc = new App\Models\ClassificatoryConfrontation(['round' => 1]);
+    $cc->save();
+
+    $c = new App\Models\Confrontation(['scheduling' => Carbon\Carbon::now()]);
+    $c->team_guest_id = 1;
+    $c->team_host_id = 2;
+    $c->league_id = 1;
+
+    $c->confrontable()->associate($cc);
+    $c->save();
+
+    dd($c->toArray());
+});
+
 Route::middleware('apiInterceptor')->group(function () {
 
     Route::prefix('/leagues')
