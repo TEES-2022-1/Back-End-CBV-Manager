@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\LeagueController;
+use App\Services\ClassificatoryConfrontationsService;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,14 +15,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::any('/test', function() {
-    $league_id = 1;
+Route::any('/test', function(ClassificatoryConfrontationsService $classificatoryConfrontationsService) {
 
-    $league = \App\Models\League::findOrfail($league_id);
-    $teams = $league->teams()->get();
-    $period = \Carbon\CarbonPeriod::between($league->begin_in, $league->classificatory_limit)->toArray();
+    $league = \App\Models\League::findOrfail(1);
 
-    dd(App\Models\ClassificatoryConfrontation::find(2)->load('confrontation')->toArray());
+    dd($classificatoryConfrontationsService->generateConfrontations($league));
 });
 
 Route::middleware('apiInterceptor')->group(function () {

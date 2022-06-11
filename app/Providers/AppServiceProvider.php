@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\ClassificatoryConfrontation;
+use App\Services\ClassificatoryConfrontationsService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -13,7 +15,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->singleton(ClassificatoryConfrontationsService::class, function ($app) {
+            $classificatoryConfrontationsService = new ClassificatoryConfrontationsService();
+            $classificatoryConfrontationsService->classificatoryConfrontation = app()->make(ClassificatoryConfrontation::class);
+            return $classificatoryConfrontationsService;
+        });
     }
 
     /**
