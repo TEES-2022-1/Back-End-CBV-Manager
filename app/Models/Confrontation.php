@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Confrontation extends Model
 {
@@ -27,7 +28,8 @@ class Confrontation extends Model
         'set5_points_guest',
     ];
 
-    public function confrontable() {
+    public function confrontable(): MorphTo
+    {
         return $this->morphTo(__FUNCTION__, 'confrontable_type', 'confrontable_id');
     }
 }

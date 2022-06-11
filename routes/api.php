@@ -15,18 +15,13 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::any('/test', function() {
-    $cc = new App\Models\ClassificatoryConfrontation(['round' => 1]);
-    $cc->save();
+    $league_id = 1;
 
-    $c = new App\Models\Confrontation(['scheduling' => Carbon\Carbon::now()]);
-    $c->team_guest_id = 1;
-    $c->team_host_id = 2;
-    $c->league_id = 1;
+    $league = \App\Models\League::findOrfail($league_id);
+    $teams = $league->teams()->get();
+    $period = \Carbon\CarbonPeriod::between($league->begin_in, $league->classificatory_limit)->toArray();
 
-    $c->confrontable()->associate($cc);
-    $c->save();
-
-    dd($c->toArray());
+    dd(App\Models\ClassificatoryConfrontation::find(2)->load('confrontation')->toArray());
 });
 
 Route::middleware('apiInterceptor')->group(function () {
