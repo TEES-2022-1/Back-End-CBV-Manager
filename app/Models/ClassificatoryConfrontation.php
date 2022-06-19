@@ -16,6 +16,10 @@ class ClassificatoryConfrontation extends Model
         'round',
     ];
 
+    protected $hidden = [
+        'laravel_through_key',
+    ];
+
     public function confrontation(): MorphOne
     {
         return $this->morphOne(Confrontation::class, 'confrontable');

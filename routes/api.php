@@ -1,7 +1,5 @@
 <?php
 
-use App\Http\Controllers\LeagueController;
-use App\Services\ClassificatoryConfrontationsService;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,18 +13,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::any('/test', function(ClassificatoryConfrontationsService $classificatoryConfrontationsService) {
-
-    $league = \App\Models\League::findOrfail(1);
-
-    dd($classificatoryConfrontationsService->generateConfrontations($league));
+Route::any('/test', function() {
+    dd("ok");
 });
 
 Route::middleware('apiInterceptor')->group(function () {
 
     Route::prefix('/leagues')
         ->name('leagues.')
-        ->controller(LeagueController::class)
+        ->controller(\App\Http\Controllers\LeagueController::class)
         ->group(function () {
             Route::get('/', "index")->name('index');
             Route::get('/{league_id}', 'read')->name('read');
@@ -63,6 +58,20 @@ Route::middleware('apiInterceptor')->group(function () {
                             Route::post('/', 'create')->name('create');
                             Route::put('/{player_id}', 'update')->name('update');
                             Route::delete('/{player_id}', 'delete')->name('delete');
+                        });
+                });
+
+            Route::prefix('/{league_id}/confrontations')
+                ->name('confrontations.')
+                ->group(function() {
+                    Route::prefix('/classificatory')
+                        ->name('classificatory.')
+                        ->controller(\App\Http\Controllers\ClassificatoryConfrontationController::class)
+                        ->group(function() {
+                            Route::post('/generate', 'generate');
+                            Route::get('/', 'index');
+                            Route::get('/{confrontation_id}', 'read');
+                            Route::put('/{confrontation_id}', 'update');
                         });
                 });
         });

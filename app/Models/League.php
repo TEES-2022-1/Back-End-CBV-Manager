@@ -44,6 +44,6 @@ class League extends Model
 
     public function classificatoryConfrontations(): HasManyThrough
     {
-        return $this->hasManyThrough(ClassificatoryConfrontation::class, Confrontation::class, 'id', 'id');
+        return $this->hasManyThrough(ClassificatoryConfrontation::class, Confrontation::class, 'league_id', 'id');
     }
 }

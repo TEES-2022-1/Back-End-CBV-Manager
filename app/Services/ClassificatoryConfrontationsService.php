@@ -3,10 +3,12 @@
 namespace App\Services;
 
 use App\Models\ClassificatoryConfrontation;
+use App\Models\Confrontation;
 use App\Models\League;
 use Carbon\CarbonPeriod;
 use Exception;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class ClassificatoryConfrontationsService
 {
@@ -17,33 +19,16 @@ class ClassificatoryConfrontationsService
      */
     public function generateConfrontations(League $league)
     {
-        dump($league->classificatoryConfrontations()->count());
+        if ($league->classificatoryConfrontations()->count() > 0) {
+            throw new Exception("Unable to perform this action. Classificatory confrontations have already been generated for this league.");
+        }
 
         $leagueTeams = $league->teams()->get();
-        $combinations = $this->generateCombinations($leagueTeams);
-        $rounds = $this->generateRounds($combinations);
-
-        dd($combinations, $rounds);
-
-        $period = CarbonPeriod::between($league->begin_in, $league->classificatory_limit);
-        $daysBetweenRounds = floor($period->count() / $this->calculateQuantityRounds($leagueTeams->count()));
-
-        if (self::$minimumDaysBetweenRounds > $daysBetweenRounds) {
-            throw new Exception("Date range is insufficient to generate the classificatory confrontations.");
-        }
-
-        for ($round = 0, $date = $period->first();
-             $round < $this->calculateQuantityRounds($leagueTeams->count()) && $date->isBefore($period->last());
-             $round++, $date->addDays($daysBetweenRounds)) {
-
-            $date->setHours(8);
-            dump($date->toDateTimeString());
-        }
-
-        dd($combinations);
+        $roundCombinations = $this->generateRoundCombinations($leagueTeams);
+        $this->createRounds($league, $roundCombinations, $leagueTeams->count());
     }
 
-    private function generateCombinations(Collection $leagueTeams): Collection
+    private function generateRoundCombinations(Collection $leagueTeams): Collection
     {
         $size = $leagueTeams->count();
         $quantityRounds = $this->calculateQuantityRounds($size)/2;
@@ -51,9 +36,9 @@ class ClassificatoryConfrontationsService
 
         $combinations = [];
         for ($i = 0; $i < $size; $i++) {
-            $teamA = $leagueTeams->get($i)->id;
+            $teamA = $leagueTeams->get($i);
             for ($j = $i+1; $j < $size; $j++) {
-                $teamB = $leagueTeams->get($j)->id;
+                $teamB = $leagueTeams->get($j);
                 $combinations[] = compact('teamA', 'teamB');
             }
         }
@@ -83,20 +68,58 @@ class ClassificatoryConfrontationsService
             } while(!$allocated);
         }
 
+        for ($i = 0; $i < $quantityRounds; $i++) {
+            $returnRound = [];
+            for ($j = 0; $j < count($rounds[$i]); $j++) {
+                $returnRound[] = [
+                    'teamA' => $rounds[$i][$j]['teamB'],
+                    'teamB' => $rounds[$i][$j]['teamA'],
+                ];
+            }
+
+            $rounds[] = $returnRound;
+        }
+
         return collect($rounds);
     }
 
-    private function generateRounds(Collection $combinations): Collection
+    /**
+     * @throws Exception
+     */
+    private function createRounds(League $league, Collection $roundCombinations, int $quantityTeams)
     {
-        $originalSize = $combinations->count();
-        for ($i = 0; $i < $originalSize; $i++) {
-            $combination = $combinations->get($i);
-            dump($combination);
+        $period = CarbonPeriod::between($league->begin_in, $league->classificatory_limit);
+        $quantityRounds = $this->calculateQuantityRounds($quantityTeams);
+        $daysBetweenRounds = floor($period->count() / $quantityRounds);
+
+        if (self::$minimumDaysBetweenRounds > $daysBetweenRounds) {
+            throw new Exception("Date range is insufficient to generate the classificatory confrontations.");
         }
 
-        return $combinations;
-    }
+        DB::transaction(function() use($period, $league, $roundCombinations, $daysBetweenRounds, $quantityRounds) {
+            for ($round = 1, $scheduling = $period->first();
+                 $round <= $quantityRounds && $scheduling->isBefore($period->last());
+                 $round++, $scheduling->addDays($daysBetweenRounds)) {
+                $scheduling->setHours(8);
+                $combinations = $roundCombinations->shift();
 
+                foreach ($combinations as $combination) {
+                    $classificatoryConfrontation = new ClassificatoryConfrontation(compact('round'));
+                    $classificatoryConfrontation->save();
+
+                    $confrontation = new Confrontation(compact('scheduling'));
+                    $confrontation->league()->associate($league);
+                    $confrontation->teamHost()->associate($combination['teamA']);
+                    $confrontation->teamGuest()->associate($combination['teamB']);
+                    $confrontation->confrontable()->associate($classificatoryConfrontation);
+                    $confrontation->save();
+
+                    $scheduling->addHours(2);
+                }
+            }
+        });
+
+    }
 
     private function calculateQuantityRounds(int $numberOfTeams): int
     {
