@@ -6,42 +6,47 @@ use App\Models\ClassificatoryConfrontation;
 use App\Models\League;
 use Carbon\CarbonPeriod;
 use Exception;
-use http\Exception\RuntimeException;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 
 class ClassificatoryConfrontationsService
 {
-    public ClassificatoryConfrontation $classificatoryConfrontation;
+    private static int $minimumDaysBetweenRounds = 3;
 
     /**
      * @throws Exception
      */
     public function generateConfrontations(League $league)
     {
-        $leagueTeams = $league->teams()->get();
-        $rounds = $this->combineConfrontationTeams($leagueTeams);
+        dump($league->classificatoryConfrontations()->count());
 
-        $period = CarbonPeriod::between($league->begin_in, $league->classificatory_limit)->toArray();
-        if (count($period) < $this->calculateQuantityRounds($leagueTeams->count())) {
-            throw new RuntimeException("Date range is insufficient for this operation.");
+        $leagueTeams = $league->teams()->get();
+        $combinations = $this->generateCombinations($leagueTeams);
+        $rounds = $this->generateRounds($combinations);
+
+        dd($combinations, $rounds);
+
+        $period = CarbonPeriod::between($league->begin_in, $league->classificatory_limit);
+        $daysBetweenRounds = floor($period->count() / $this->calculateQuantityRounds($leagueTeams->count()));
+
+        if (self::$minimumDaysBetweenRounds > $daysBetweenRounds) {
+            throw new Exception("Date range is insufficient to generate the classificatory confrontations.");
         }
 
-        // Validar se os jogos da fase classificatória já foram criados para esta liga.
+        for ($round = 0, $date = $period->first();
+             $round < $this->calculateQuantityRounds($leagueTeams->count()) && $date->isBefore($period->last());
+             $round++, $date->addDays($daysBetweenRounds)) {
 
-        /**
-         * 11h
-         * 13h
-         * 17h
-         */
+            $date->setHours(8);
+            dump($date->toDateTimeString());
+        }
 
-        dd();
-
-        return $this->classificatoryConfrontation::class;
+        dd($combinations);
     }
 
-    private function combineConfrontationTeams(Collection $leagueTeams): array
+    private function generateCombinations(Collection $leagueTeams): Collection
     {
         $size = $leagueTeams->count();
+        $quantityRounds = $this->calculateQuantityRounds($size)/2;
         $quantityConfrontationsByRounds = $this->calculateQuantityConfrontationsByRounds($size);
 
         $combinations = [];
@@ -53,7 +58,7 @@ class ClassificatoryConfrontationsService
             }
         }
 
-        $rounds = array_fill(0, $size - 1, []);
+        $rounds = array_fill(0, $quantityRounds, []);
         $i = 0;
         foreach ($combinations as $index => $combination) {
             $allocated = false;
@@ -78,20 +83,30 @@ class ClassificatoryConfrontationsService
             } while(!$allocated);
         }
 
-        return $rounds;
+        return collect($rounds);
+    }
+
+    private function generateRounds(Collection $combinations): Collection
+    {
+        $originalSize = $combinations->count();
+        for ($i = 0; $i < $originalSize; $i++) {
+            $combination = $combinations->get($i);
+            dump($combination);
+        }
+
+        return $combinations;
     }
 
 
+    private function calculateQuantityRounds(int $numberOfTeams): int
+    {
+        return $this->calculateQuantityConfrontations($numberOfTeams) / $this->calculateQuantityConfrontationsByRounds($numberOfTeams);
+    }
 
     private function calculateQuantityConfrontations(int $numberOfTeams): int
     {
         for ($i = $numberOfTeams - 1, $qtd = 0; $i > 0; $i--) $qtd += $i;
         return $qtd * 2;
-    }
-
-    private function calculateQuantityRounds(int $numberOfTeams): int
-    {
-        return $this->calculateQuantityConfrontations($numberOfTeams) / $this->calculateQuantityConfrontationsByRounds($numberOfTeams);
     }
 
     private function calculateQuantityConfrontationsByRounds(int $numberOfTeams): int
