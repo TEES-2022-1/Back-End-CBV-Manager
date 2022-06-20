@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,11 +15,18 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // \App\Models\User::factory(10)->create();
+        $dir = dir(__DIR__);
+        $currentFile = basename(__FILE__);
+        $seeders = [];
+        while($file = $dir->read()){
+            if (Str::endsWith($file, ".php") && $file != $currentFile) {
+                $classname = "Database\\Seeders\\" . str_replace(".php", "", $file);
+                if (class_exists($classname)) {
+                    $seeders[] = $classname;
+                }
+            }
+        }
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        $this->call($seeders);
     }
 }
