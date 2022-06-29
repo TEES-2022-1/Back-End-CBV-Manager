@@ -16,9 +16,7 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton(ClassificatoryConfrontationsService::class, function ($app) {
-            $classificatoryConfrontationsService = new ClassificatoryConfrontationsService();
-            $classificatoryConfrontationsService->classificatoryConfrontation = app()->make(ClassificatoryConfrontation::class);
-            return $classificatoryConfrontationsService;
+            return new ClassificatoryConfrontationsService();
         });
     }
 

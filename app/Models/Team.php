@@ -16,6 +16,7 @@ use Illuminate\Support\Carbon;
  * @property string gymnasium
  * @property string category
  * @property Carbon affiliated_federation_in
+ * @property string image
  */
 class Team extends Model
 {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\League;
 use App\Models\Team;
+use GuzzleHttp\Psr7\UploadedFile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -22,6 +23,13 @@ class TeamController extends Controller
         $form = $request->all();
 
         $team = new Team($form);
+        if (!empty($form['image'])) {
+            $filename = md5(time()) . '.' . $form['image']->extension();
+            $form['image']->storeAs('images', $filename);
+
+            $team->image = route('images', compact('filename'));
+        }
+
         $team->league()->associate($league);
         $team->save();
 
@@ -40,6 +48,13 @@ class TeamController extends Controller
 
         $form = $request->all();
         $team->fill($form);
+
+        if (!empty($form['image'])) {
+            $filename = md5(time()) . '.' . $form['image']->extension();
+            $form['image']->storeAs('images', $filename);
+
+            $team->image = route('images', compact('filename'));
+        }
 
         $team->save();
 
