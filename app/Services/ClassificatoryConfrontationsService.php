@@ -13,17 +13,22 @@ use Illuminate\Support\Facades\DB;
 class ClassificatoryConfrontationsService
 {
     private static int $minimumDaysBetweenRounds = 3;
+    private static int $quantityTeams = 12;
 
     /**
      * @throws Exception
      */
     public function generateConfrontations(League $league)
     {
+        $leagueTeams = $league->teams()->get();
+
+        if ($leagueTeams->count() != self::$quantityTeams) {
+            throw new Exception('Unable to generate confrontations. The quantity teams is invalid.');
+        }
         if ($league->classificatoryConfrontations()->count() > 0) {
-            throw new Exception("Unable to perform this action. Classificatory confrontations have already been generated for this league.");
+            throw new Exception('Unable to generate confrontations. Confrontations have already been generated.');
         }
 
-        $leagueTeams = $league->teams()->get();
         $roundCombinations = $this->generateRoundCombinations($leagueTeams);
         $this->createRounds($league, $roundCombinations, $leagueTeams->count());
     }
