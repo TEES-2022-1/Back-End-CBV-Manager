@@ -51,4 +51,9 @@ class Team extends Model
     {
         return $this->belongsTo(League::class);
     }
+
+    public function classification(): HasOne
+    {
+        return $this->hasOne(Classification::class);
+    }
 }
