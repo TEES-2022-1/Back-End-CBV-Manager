@@ -31,7 +31,7 @@ class ClassificatoryConfrontationController extends Controller
     public function index(int $league_id): JsonResponse
     {
         $league = League::findOrfail($league_id);
-        $confrontations = $league->classificatoryConfrontations()->with('confrontation')->get();
+        $confrontations = $league->classificatoryConfrontations()->with('confrontation')->orderBy('id')->get();
 
         return response()->json($confrontations);
     }

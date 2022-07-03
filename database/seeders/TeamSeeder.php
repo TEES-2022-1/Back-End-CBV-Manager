@@ -124,7 +124,5 @@ class TeamSeeder extends Seeder
                 $t->save();
             }
         });
-
-        \App\Models\Team::insert($teams);
     }
 }
