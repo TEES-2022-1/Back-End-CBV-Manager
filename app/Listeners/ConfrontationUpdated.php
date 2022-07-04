@@ -2,8 +2,8 @@
 
 namespace App\Listeners;
 
-use App\Models\ClassificatoryConfrontation;
 use App\Events\ConfrontationUpdated as ConfrontationUpdatedEvent;
+use App\Models\ClassificatoryConfrontation;
 use Illuminate\Support\Facades\DB;
 
 class ConfrontationUpdated
@@ -15,40 +15,43 @@ class ConfrontationUpdated
      */
     public function handle(ConfrontationUpdatedEvent $event)
     {
-        $previous = $event->getPrevious();
-        $current = $event->getCurrent();
         $confrontation = $event->getModel();
 
         if ($confrontation->confrontable()->first() instanceof ClassificatoryConfrontation) {
             $teamHost = $confrontation->teamHost()->first();
-            $classificationHost = $teamHost->classification()->first();
-
             $teamGuest = $confrontation->teamGuest()->first();
+
+            $classificationHost = $teamHost->classification()->first();
             $classificationGuest = $teamGuest->classification()->first();
 
-            DB::transaction(function() use ($classificationHost, $previous, $current, $classificationGuest) {
+            $previous = $event->getPrevious();
+            $current = $event->getCurrent();
+
+            DB::transaction(function () use ($classificationHost, $classificationGuest, $previous, $current) {
                 $this->updateClassification($classificationHost, $previous, $current);
-                $this->updateClassification($classificationGuest, $previous, $current,false);
+                $this->updateClassification($classificationGuest, $previous, $current, false);
             });
         }
     }
 
     private function updateClassification($classification, $previous, $current, $host = true)
     {
-        $resultsPrevious = $this->calculateResults($previous, $host);
+        if (!empty($previous['result_host']) && !empty($previous['result_guest'])) {
+            $resultsPrevious = $this->calculateResults($previous, $host);
+            foreach (array_keys($resultsPrevious) as $key) {
+                $classification[$key] -= $resultsPrevious[$key];
+            }
+        }
+
         $resultsCurrent = $this->calculateResults($current, $host);
         foreach (array_keys($resultsCurrent) as $key) {
-            if (empty($classification[$key])) {
-                $classification[$key] = $resultsCurrent[$key];
-            } else {
-                $classification[$key] += $resultsCurrent[$key] - $resultsPrevious[$key];
-            }
+            $classification[$key] += $resultsCurrent[$key];
         }
 
         $classification->save();
     }
 
-    private function calculateResults($confrontation, $host = true): array
+    private function calculateResults($confrontation, $host): array
     {
         $results = [
             'confrontations_win' => 0,
