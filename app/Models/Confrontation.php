@@ -37,8 +37,6 @@ class Confrontation extends Model
 
     protected $fillable = [
         'scheduling',
-        'result_host',
-        'result_guest',
         'set1_points_host',
         'set1_points_guest',
         'set2_points_host',

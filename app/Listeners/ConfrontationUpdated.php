@@ -16,22 +16,26 @@ class ConfrontationUpdated
     public function handle(ConfrontationUpdatedEvent $event)
     {
         $confrontation = $event->getModel();
-
-        if ($confrontation->confrontable()->first() instanceof ClassificatoryConfrontation) {
-            $teamHost = $confrontation->teamHost()->first();
-            $teamGuest = $confrontation->teamGuest()->first();
-
-            $classificationHost = $teamHost->classification()->first();
-            $classificationGuest = $teamGuest->classification()->first();
-
-            $previous = $event->getPrevious();
-            $current = $event->getCurrent();
-
-            DB::transaction(function () use ($classificationHost, $classificationGuest, $previous, $current) {
-                $this->updateClassification($classificationHost, $previous, $current);
-                $this->updateClassification($classificationGuest, $previous, $current, false);
-            });
+        if (!($confrontation->confrontable()->first() instanceof ClassificatoryConfrontation)) {
+            return;
         }
+
+        $previous = $event->getPrevious();
+        $current = $event->getCurrent();
+        if (empty($current['result_host']) || empty($current['result_guest'])) {
+            return;
+        }
+
+        $teamHost = $confrontation->teamHost()->first();
+        $teamGuest = $confrontation->teamGuest()->first();
+
+        $classificationHost = $teamHost->classification()->first();
+        $classificationGuest = $teamGuest->classification()->first();
+
+        DB::transaction(function () use ($classificationHost, $classificationGuest, $previous, $current) {
+            $this->updateClassification($classificationHost, $previous, $current);
+            $this->updateClassification($classificationGuest, $previous, $current, false);
+        });
     }
 
     private function updateClassification($classification, $previous, $current, $host = true)
