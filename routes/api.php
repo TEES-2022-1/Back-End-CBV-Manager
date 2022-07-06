@@ -68,11 +68,19 @@ Route::middleware('apiInterceptor')->group(function () {
                         ->name('classificatory.')
                         ->controller(\App\Http\Controllers\ClassificatoryConfrontationController::class)
                         ->group(function() {
-                            Route::post('/generate', 'generate');
-                            Route::get('/', 'index');
-                            Route::get('/{confrontation_id}', 'read');
-                            Route::put('/{confrontation_id}', 'update');
+                            Route::post('/generate', 'generate')->name('generate');
+                            Route::get('/', 'index')->name('index');
+                            Route::get('/{confrontation_id}', 'read')->name('read');
+                            Route::put('/{confrontation_id}', 'update')->name('update');
                         });
+                });
+
+            Route::prefix('/{league_id}/classifications')
+                ->name('classifications.')
+                ->controller(\App\Http\Controllers\ClassificationController::class)
+                ->group(function() {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/{classification_id}', 'read')->name('read');
                 });
         });
 
