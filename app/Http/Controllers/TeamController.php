@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\League;
 use App\Models\Team;
-use GuzzleHttp\Psr7\UploadedFile;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Events\ConfrontationUpdated;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -36,8 +37,6 @@ class Confrontation extends Model
 
     protected $fillable = [
         'scheduling',
-        'result_host',
-        'result_guest',
         'set1_points_host',
         'set1_points_guest',
         'set2_points_host',
@@ -48,6 +47,11 @@ class Confrontation extends Model
         'set4_points_guest',
         'set5_points_host',
         'set5_points_guest',
+    ];
+
+
+    protected $dispatchesEvents = [
+        'updated' => ConfrontationUpdated::class,
     ];
 
     public function league(): BelongsTo

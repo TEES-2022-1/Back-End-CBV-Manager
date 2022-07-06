@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Events\TeamCreated;
 use App\Models\Mutators\CategoryMutator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -32,6 +33,10 @@ class Team extends Model
         'affiliated_federation_in'
     ];
 
+    protected $dispatchesEvents = [
+        'created' => TeamCreated::class,
+    ];
+
     public function players(): HasMany
     {
         return $this->hasMany(Player::class);
@@ -45,5 +50,10 @@ class Team extends Model
     public function league(): BelongsTo
     {
         return $this->belongsTo(League::class);
+    }
+
+    public function classification(): HasOne
+    {
+        return $this->hasOne(Classification::class);
     }
 }

@@ -2,8 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Models\League;
+use App\Models\Team;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class TeamSeeder extends Seeder
 {
@@ -113,6 +116,13 @@ class TeamSeeder extends Seeder
             ],
         ];
 
-        \App\Models\Team::insert($teams);
+        DB::transaction(function() use ($teams) {
+            foreach ($teams as $team) {
+                $league = League::findOrFail($team['league_id']);
+                $t = new Team($team);
+                $t->league()->associate($league);
+                $t->save();
+            }
+        });
     }
 }

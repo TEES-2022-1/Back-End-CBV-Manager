@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Events\ConfrontationUpdated;
+use App\Events\TeamCreated;
+use App\Models\Confrontation;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -18,6 +21,12 @@ class EventServiceProvider extends ServiceProvider
         Registered::class => [
             SendEmailVerificationNotification::class,
         ],
+        TeamCreated::class => [
+            \App\Listeners\TeamCreated::class,
+        ],
+        ConfrontationUpdated::class => [
+            \App\Listeners\ConfrontationUpdated::class,
+        ]
     ];
 
     /**

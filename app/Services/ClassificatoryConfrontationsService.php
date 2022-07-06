@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\ClassificatoryConfrontation;
 use App\Models\Confrontation;
 use App\Models\League;
+use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Exception;
 use Illuminate\Support\Collection;
@@ -13,19 +14,39 @@ use Illuminate\Support\Facades\DB;
 class ClassificatoryConfrontationsService
 {
     private static int $minimumDaysBetweenRounds = 3;
+    private static int $quantityTeams = 12;
 
     /**
      * @throws Exception
      */
     public function generateConfrontations(League $league)
     {
+        $teams = $league->teams()->get();
+        $this->verifyIfCanCreateClassificatoryConfrontations($league, $teams);
+
+        $roundCombinations = $this->generateRoundCombinations($teams);
+        $this->createRounds($league, $roundCombinations, $teams->count());
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function verifyIfCanCreateClassificatoryConfrontations($league, $teams)
+    {
         if ($league->classificatoryConfrontations()->count() > 0) {
-            throw new Exception("Unable to perform this action. Classificatory confrontations have already been generated for this league.");
+            throw new Exception('Classificatory confrontations have already been generated.');
+        }
+        if ($teams->count() != self::$quantityTeams) {
+            throw new Exception('The quantity teams is invalid.');
         }
 
-        $leagueTeams = $league->teams()->get();
-        $roundCombinations = $this->generateRoundCombinations($leagueTeams);
-        $this->createRounds($league, $roundCombinations, $leagueTeams->count());
+        $leagueBeginIn = Carbon::parse($league->begin_in);
+        foreach ($teams as $team) {
+            $affiliated_federation_in = Carbon::parse($team->affiliated_federation_in);
+            if ($affiliated_federation_in->isAfter($leagueBeginIn)) {
+                throw new Exception('One of the teams was not affiliated to the Volleyball federation until the beginning of the league.');
+            }
+        }
     }
 
     private function generateRoundCombinations(Collection $leagueTeams): Collection
