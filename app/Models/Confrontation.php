@@ -33,6 +33,8 @@ class Confrontation extends Model
         'id',
         'confrontable_id',
         'confrontable_type',
+        'team_host_id',
+        'team_guest_id',
     ];
 
     protected $fillable = [
